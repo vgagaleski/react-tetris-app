@@ -7,10 +7,10 @@ export const useStage = (player, resetPlayer) => {
 
   useEffect(() => {
     setRowsCleared(0);
-    const sweepRows = (newStage) =>
+    const sweepRows = newStage =>
       newStage.reduce((ack, row) => {
-        if (row.findIndex((cell) => cell[0] === 0) === -1) {
-          setRowsCleared((prev) => prev + 1);
+        if (row.findIndex(cell => cell[0] === 0) === -1) {
+          setRowsCleared(prev => prev + 1);
           ack.unshift(new Array(newStage[0].length).fill([0, 'clear']));
           return ack;
         }
@@ -18,13 +18,13 @@ export const useStage = (player, resetPlayer) => {
         return ack;
       }, []);
 
-    const updateStage = (prevStage) => {
-      // Flush the stage
-      const newStage = prevStage.map((row) =>
-        row.map((cell) => (cell[1] === 'clear' ? [0, 'clear'] : cell)),
+    const updateStage = prevStage => {
+      // First flush the stage
+      const newStage = prevStage.map(row =>
+        row.map(cell => (cell[1] === 'clear' ? [0, 'clear'] : cell))
       );
 
-      // Draw the tetromino
+      // Then draw the tetromino
       player.tetromino.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value !== 0) {
@@ -35,7 +35,7 @@ export const useStage = (player, resetPlayer) => {
           }
         });
       });
-      // Check if we got some score if collided
+      // Then check if we got some score if collided
       if (player.collided) {
         resetPlayer();
         return sweepRows(newStage);
@@ -43,8 +43,8 @@ export const useStage = (player, resetPlayer) => {
       return newStage;
     };
 
-    // Update
-    setStage((prev) => updateStage(prev));
+    // Here are the updates
+    setStage(prev => updateStage(prev));
   }, [
     player.collided,
     player.pos.x,
