@@ -8,21 +8,33 @@ import { useInterval } from '../hooks/useInterval';
 import { usePlayer } from '../hooks/usePlayer';
 import { useStage } from '../hooks/useStage';
 import { useGameStatus } from '../hooks/useGameStatus';
+import { useLeaderboard } from '../hooks/useLeaderboard';
 
 // Components
 import Stage from './Stage';
 import Display from './Display';
 import StartButton from './StartButton';
+import Leaderboard from './Leaderboard';
+import Input from './Input';
+
+// Firebase
+import firebase from '../firebase/firebase';
 
 const Tetris = () => {
   const [dropTime, setDropTime] = useState(null);
   const [gameOver, setGameOver] = useState(false);
+  const [userName, setUserName] = useState(
+    `Rand-${Math.floor(10000 + Math.random() * 90000)}`,
+  );
+  const [disabled, setDisabled] = useState(false);
 
   const [player, updatePlayerPos, resetPlayer, playerRotate] = usePlayer();
   const [stage, setStage, rowsCleared] = useStage(player, resetPlayer);
   const [score, setScore, rows, setRows, level, setLevel] = useGameStatus(
     rowsCleared,
   );
+
+  const [setLeaderboard] = useLeaderboard();
 
   console.log('re-render');
 
@@ -42,14 +54,20 @@ const Tetris = () => {
   };
 
   const startGame = () => {
-    // Reset everything
-    setStage(createStage());
-    setDropTime(1000);
-    resetPlayer();
-    setScore(0);
-    setLevel(0);
-    setRows(0);
-    setGameOver(false);
+    if (userName !== '') {
+      // Reset everything
+      setStage(createStage());
+      setDropTime(1000);
+      resetPlayer();
+      setScore(0);
+      setLevel(0);
+      setRows(0);
+      setUserName(userName);
+      setDisabled(true);
+      setGameOver(false);
+    } else {
+      alert('Please enter user name!');
+    }
   };
 
   const drop = () => {
@@ -67,6 +85,9 @@ const Tetris = () => {
       if (player.pos.y < 1) {
         console.log('GAME OVER!!!');
         setGameOver(true);
+        setDisabled(false);
+        console.log(`userName = ${userName}, score = ${score}`);
+        addScoreToFirestore(userName, score);
         setDropTime(null);
       }
       updatePlayerPos({ x: 0, y: 0, collided: true });
@@ -100,6 +121,25 @@ const Tetris = () => {
     }
   };
 
+  const onNameChange = (event) => {
+    const userName = event.target.value;
+    console.log(userName);
+    if (userName.length < 11) {
+      setUserName(userName);
+      event.preventDefault();
+    } else {
+      alert('The user name cannot be longer than 12 chars');
+    }
+  };
+
+  const addScoreToFirestore = (userName, userScore) => {
+    firebase.firestore().collection('Leaderboard').add({
+      userName,
+      userScore,
+      date: new Date(),
+    });
+  };
+
   return (
     <StyledTetrisWrapper
       role="button"
@@ -115,9 +155,18 @@ const Tetris = () => {
           ) : (
             <div>
               <Display text={`Score: ${score}`} />
-              <Display text={`rows: ${rows}`} />
+              <Display text={`Rows: ${rows}`} />
               <Display text={`Level: ${level}`} />
-              <Display text={`Leaderboard: ${level}`} />
+              <Input
+                text={`User name: `}
+                userName={userName}
+                callback={onNameChange}
+                disabled={disabled ? 'disabled' : ''}
+              />
+              <Leaderboard
+                text={`Leaderboard:`}
+                leaderboardList={setLeaderboard}
+              />
             </div>
           )}
           <StartButton callback={startGame} />
