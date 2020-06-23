@@ -28,6 +28,10 @@ REACT_APP_FIREBASE_API_KEY=<your_firebase_app_key>
 REACT_APP_FIREBASE_MESSAGING_SENDING_ID=<your_firebase_messaging_sending_id>
 REACT_APP_FIREBASE_APP_ID=<your_firebase_app_id>
 ```
+6. Start the project by running:
+```
+ npm start
+```
 
 ## Features <a name="features"></a>
 I followed the tutorial and the code covered in the video is the same as the one in this repo: https://github.com/weibenfalk/react-tetris-starter-files. On top of this I added the Firebase hook that will upload the leaderboard.
