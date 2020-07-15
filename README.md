@@ -36,7 +36,7 @@ REACT_APP_FIREBASE_APP_ID=<your_firebase_app_id>
 ## Features <a name="features"></a>
 I followed the tutorial and the code covered in the video is the same as the one in this repo: https://github.com/weibenfalk/react-tetris-starter-files. On top of this I added the Firebase hook that will upload the leaderboard.
 
-### How it works?
+### How does it work?
 The user has to provide user name before starting the game or automatic random user name will be created. Once the game is finished, the results will be automatically uploaded to the firestore in a document called 'Leaderboard'. The end result looks something like this:
 
 ![Demo](https://github.com/vgagaleski/react-tetris-app/blob/master/demo.png)
